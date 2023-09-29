@@ -107,6 +107,55 @@ export const POST = async (request) => {
   //   }
   // })
 
+  //1
+  const course = await prisma.course.findFirst({
+    where: {
+      courseNo,
+    },
+  });
+
+  // console.log(course);
+
+  if(!course){
+    return NextResponse.json(
+      {
+        ok: false,
+        message: "Course number does not exist",
+      },
+      { status: 404 }
+    );
+  }
+
+  //2
+  const enrollment = await prisma.enrollment.findFirst({
+    where: {
+      studentId,
+      courseNo,
+    },
+  });
+
+  // console.log(enrollment);
+
+  if(enrollment){
+    return NextResponse.json(
+      {
+        ok: false,
+        message: "You have already enrolled this course",
+      },
+      { status: 400 }
+    );
+  }
+
+  //3
+  if(!enrollment){
+    await prisma.enrollment.create({
+      data: {
+        studentId,
+        courseNo,
+      },
+    });
+  }
+
   return NextResponse.json({
     ok: true,
     message: "You has enrolled a course successfully",
